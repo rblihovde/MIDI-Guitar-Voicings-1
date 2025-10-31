@@ -56,3 +56,6 @@ Makefile
 
 # Dependencies fetched by CMake
 _deps/
+
+# CodeQL build artifacts
+_codeql_*
