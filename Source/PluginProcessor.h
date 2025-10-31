@@ -61,19 +61,7 @@ private:
     std::vector<int> m_currentChord;
     int m_lastPosition = 0;
     
-    // For pattern generation timing
-    struct ScheduledNote
-    {
-        int midiNote;
-        int samplePosition;
-        float velocity;
-        int duration;
-    };
-    
-    std::vector<ScheduledNote> m_scheduledNotes;
-    
     void processInputMidi(juce::MidiBuffer& midiMessages, int numSamples);
-    void generateAndSchedulePattern(const std::vector<int>& midiNotes, int startSample);
     
     JUCE_DECLARE_NON_COPYABLE_WITH_LEAK_DETECTOR(MIDIGuitarVoicingsProcessor)
 };

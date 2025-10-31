@@ -177,7 +177,7 @@ std::vector<PatternGenerator::NoteEvent> PatternGenerator::generateTremolo(
         return events;
     
     double secondsPerBeat = 60.0 / tempo;
-    double noteLength = secondsPerBeat / 8.0; // 32nd notes
+    double noteLength = secondsPerBeat / 8.0; // 8th notes (could use /32.0 for true 32nd notes)
     
     // Rapid repetition of all notes (tremolo picking)
     for (int repeat = 0; repeat < 8; ++repeat)

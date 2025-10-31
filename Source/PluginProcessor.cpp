@@ -44,7 +44,7 @@ MIDIGuitarVoicingsProcessor::~MIDIGuitarVoicingsProcessor()
 void MIDIGuitarVoicingsProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::ignoreUnused(sampleRate, samplesPerBlock);
-    m_scheduledNotes.clear();
+    m_currentChord.clear();
 }
 
 void MIDIGuitarVoicingsProcessor::releaseResources()
@@ -81,35 +81,41 @@ void MIDIGuitarVoicingsProcessor::processBlock(juce::AudioBuffer<float>& buffer,
 void MIDIGuitarVoicingsProcessor::processInputMidi(juce::MidiBuffer& midiMessages, int numSamples)
 {
     juce::MidiBuffer processedMidi;
-    std::vector<int> currentNotes;
+    std::vector<int> newNotes;
     
-    // Collect all note-on messages in this block
+    // Process all MIDI messages and track note states
     for (const auto metadata : midiMessages)
     {
         auto message = metadata.getMessage();
         
         if (message.isNoteOn())
         {
-            currentNotes.push_back(message.getNoteNumber());
+            newNotes.push_back(message.getNoteNumber());
+            // Add to persistent chord
+            if (std::find(m_currentChord.begin(), m_currentChord.end(), message.getNoteNumber()) == m_currentChord.end())
+            {
+                m_currentChord.push_back(message.getNoteNumber());
+            }
         }
         else if (message.isNoteOff())
         {
-            // Remove from current notes
-            auto it = std::find(currentNotes.begin(), currentNotes.end(), message.getNoteNumber());
-            if (it != currentNotes.end())
+            // Remove from persistent chord
+            auto it = std::find(m_currentChord.begin(), m_currentChord.end(), message.getNoteNumber());
+            if (it != m_currentChord.end())
             {
-                currentNotes.erase(it);
+                m_currentChord.erase(it);
             }
         }
     }
     
     // If we have new notes, generate a voicing and pattern
-    if (!currentNotes.empty() && currentNotes != m_currentChord)
+    if (!newNotes.empty())
     {
-        m_currentChord = currentNotes;
+        // Use current chord state for voicing
+        std::vector<int> chordToVoice = m_currentChord;
         
         // Get best voicing
-        auto voicing = m_voicingEngine.getBestVoicing(m_currentChord, m_lastPosition);
+        auto voicing = m_voicingEngine.getBestVoicing(chordToVoice, m_lastPosition);
         
         if (!voicing.notes.empty())
         {
@@ -135,13 +141,11 @@ void MIDIGuitarVoicingsProcessor::processInputMidi(juce::MidiBuffer& midiMessage
                         juce::MidiMessage::noteOn(1, event.midiNote, velocity),
                         sampleOffset);
                     
-                    // Schedule note off
-                    if (sampleOffset + noteDuration < numSamples)
-                    {
-                        processedMidi.addEvent(
-                            juce::MidiMessage::noteOff(1, event.midiNote),
-                            sampleOffset + noteDuration);
-                    }
+                    // Schedule note off - clamp to buffer size to avoid hanging notes
+                    int noteOffSample = std::min(sampleOffset + noteDuration, numSamples - 1);
+                    processedMidi.addEvent(
+                        juce::MidiMessage::noteOff(1, event.midiNote),
+                        noteOffSample);
                 }
             }
         }
@@ -149,12 +153,6 @@ void MIDIGuitarVoicingsProcessor::processInputMidi(juce::MidiBuffer& midiMessage
     
     // Replace the MIDI buffer with our processed version
     midiMessages.swapWith(processedMidi);
-}
-
-void MIDIGuitarVoicingsProcessor::generateAndSchedulePattern(const std::vector<int>& midiNotes, int startSample)
-{
-    juce::ignoreUnused(midiNotes, startSample);
-    // This could be used for more advanced scheduling in the future
 }
 
 juce::AudioProcessorEditor* MIDIGuitarVoicingsProcessor::createEditor()
