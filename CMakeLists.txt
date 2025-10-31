@@ -18,6 +18,7 @@ FetchContent_MakeAvailable(JUCE)
 # Plugin configuration
 juce_add_plugin(MIDIGuitarVoicings
     COMPANY_NAME "RBL Audio"
+    BUNDLE_ID "com.rblaudio.midiguitarvoicings"
     PLUGIN_MANUFACTURER_CODE Rbla
     PLUGIN_CODE Mgvs
     FORMATS VST3 AU Standalone

@@ -1,6 +1,7 @@
 #pragma once
 
-#include <JuceHeader.h>
+#include <juce_gui_basics/juce_gui_basics.h>
+#include <juce_audio_processors/juce_audio_processors.h>
 #include "PluginProcessor.h"
 
 /**
@@ -93,6 +94,7 @@ private:
                             float sliderPos, float rotaryStartAngle, float rotaryEndAngle,
                             juce::Slider& slider) override
         {
+            juce::ignoreUnused(slider);
             auto radius = juce::jmin(width / 2, height / 2) - 10.0f;
             auto centreX = x + width * 0.5f;
             auto centreY = y + height * 0.5f;

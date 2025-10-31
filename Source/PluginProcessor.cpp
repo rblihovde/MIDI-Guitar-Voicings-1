@@ -41,57 +41,6 @@ MIDIGuitarVoicingsProcessor::~MIDIGuitarVoicingsProcessor()
 {
 }
 
-const juce::String MIDIGuitarVoicingsProcessor::getName() const
-{
-    return JucePlugin_Name;
-}
-
-bool MIDIGuitarVoicingsProcessor::acceptsMidi() const
-{
-    return true;
-}
-
-bool MIDIGuitarVoicingsProcessor::producesMidi() const
-{
-    return true;
-}
-
-bool MIDIGuitarVoicingsProcessor::isMidiEffect() const
-{
-    return true;
-}
-
-double MIDIGuitarVoicingsProcessor::getTailLengthSeconds() const
-{
-    return 0.0;
-}
-
-int MIDIGuitarVoicingsProcessor::getNumPrograms()
-{
-    return 1;
-}
-
-int MIDIGuitarVoicingsProcessor::getCurrentProgram()
-{
-    return 0;
-}
-
-void MIDIGuitarVoicingsProcessor::setCurrentProgram(int index)
-{
-    juce::ignoreUnused(index);
-}
-
-const juce::String MIDIGuitarVoicingsProcessor::getProgramName(int index)
-{
-    juce::ignoreUnused(index);
-    return {};
-}
-
-void MIDIGuitarVoicingsProcessor::changeProgramName(int index, const juce::String& newName)
-{
-    juce::ignoreUnused(index, newName);
-}
-
 void MIDIGuitarVoicingsProcessor::prepareToPlay(double sampleRate, int samplesPerBlock)
 {
     juce::ignoreUnused(sampleRate, samplesPerBlock);
@@ -104,6 +53,7 @@ void MIDIGuitarVoicingsProcessor::releaseResources()
 
 bool MIDIGuitarVoicingsProcessor::isBusesLayoutSupported(const BusesLayout& layouts) const
 {
+    juce::ignoreUnused(layouts);
     // Support any layout since we're primarily a MIDI effect
     return true;
 }
@@ -205,11 +155,6 @@ void MIDIGuitarVoicingsProcessor::generateAndSchedulePattern(const std::vector<i
 {
     juce::ignoreUnused(midiNotes, startSample);
     // This could be used for more advanced scheduling in the future
-}
-
-bool MIDIGuitarVoicingsProcessor::hasEditor() const
-{
-    return true;
 }
 
 juce::AudioProcessorEditor* MIDIGuitarVoicingsProcessor::createEditor()
